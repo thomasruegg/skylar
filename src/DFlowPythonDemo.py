@@ -2,7 +2,7 @@ import os
 from google.cloud import dialogflow
 
 # path to the key-file
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]='./week1-coffe-shop-agent-71c05d2ebb77.json'
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]='../skylar-366108-5cfbd7760eac.json'
 
 
 # example from  https://cloud.google.com/dialogflow/es/docs/quick/api#detect-intent-text-python
@@ -42,4 +42,4 @@ def detect_intent_demo(project_id, session_id, texts, language_code):
 
 if __name__ == "__main__":
     # change the values accordingly
-    detect_intent_demo('week1-coffee-shop-owfn', '1', ['yes'], 'en')
+    detect_intent_demo('skylar-366108', '1', ['yes'], 'en')
