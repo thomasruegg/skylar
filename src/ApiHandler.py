@@ -2,8 +2,8 @@ import requests
 
 API = "https://partners.api.skyscanner.net/apiservices/v3/"
 KEY_HEADER = {"x-api-key": "prtl6749387986743898559646983194"}
-LOCALE = "de-DE"
-CABIN_CLASS = "CABIN_CLASS_ECONOMY" #"Economy", "PremiumEconomy", "Business", "First"
+# "CABIN_CLASS_UNSPECIFIED", "CABIN_CLASS_ECONOMY", "CABIN_CLASS_PREMIUM_ECONOMY", "CABIN_CLASS_BUSINESS", "CABIN_CLASS_FIRST"
+CABIN_CLASS = "CABIN_CLASS_ECONOMY" 
 
 def fetchCurrencies(): 
     response = requests.get(API + "culture/currencies", headers=KEY_HEADER)
@@ -25,12 +25,12 @@ def fetchAirports():
                 airport[value.get("iata")] = value
         return airport
 
-def fetchFlights(originIATA, destinationIATA, currecy, seats_num):
+def fetchFlights(originIATA, destinationIATA, currency, seats_num):
     response = requests.post(API + "flights/live/search/create", headers=KEY_HEADER, json={
         "query": {
         "market": "CH",
-        "locale": LOCALE,
-        "currency": currecy,
+        "locale": "de-DE",
+        "currency": currency,
         "queryLegs": [
             {
                 "originPlaceId": {
@@ -47,16 +47,17 @@ def fetchFlights(originIATA, destinationIATA, currecy, seats_num):
                 }
             }
         ],
-        "groupPricing": False, #show price per person
+        "groupPricing": False, # show price per person
         "adults": seats_num,
-        "children": 0, #1-16 years
-        "infants": 0, #0-12 months
+        "children": 0, # 1-16 years
+        "infants": 0, # 0-12 months
         "childrenAges": [],
-        "cabinClass": "CABIN_CLASS_ECONOMY",
+        "cabinClass": "CABIN_CLASS_BUSINESS",
         "excludedAgentsIds": [],
         "excludedCarriersIds": [],
         "includedAgentsIds": [],
-        "includedCarriersIds": []
+        "includedCarriersIds": [], # IATA code of airlines
+        "includeSustainabilityData": False # Eco data
     }
     })
     content = response.json()
