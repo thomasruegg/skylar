@@ -2,7 +2,7 @@ import os
 from google.cloud import dialogflow
 
 # path to the key-file
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]='../skylar-366108-5cfbd7760eac.json'
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]='../skylar-366108-9e5bcbd4a68c.json'
 
 
 # example from  https://cloud.google.com/dialogflow/es/docs/quick/api#detect-intent-text-python
@@ -38,7 +38,7 @@ def detect_intent_demo(project_id, session_id, texts, language_code):
                 response.query_result.intent_detection_confidence,
             )
         )
-        print("Fulfillment text: {}\n".format(response.query_result.fulfillment_text))
+        print("Fulfillment text: {}\n".format(response.query_result.fulfillment_text)) # Set a breakpoint here and look at variables in debugger
 
 if __name__ == "__main__":
     # change the values accordingly
