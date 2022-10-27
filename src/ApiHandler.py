@@ -33,17 +33,16 @@ def fetchFlights(originIATA, destinationIATA, currency, seats_num):
         "currency": currency,
         "queryLegs": [
             {
+                "date": {
+                            "day": 10,
+                            "month": 11,
+                            "year": 2022
+                },
                 "originPlaceId": {
                     "iata": originIATA
                 },
                 "destinationPlaceId": {
                     "iata": destinationIATA
-                },
-                "date": {
-                    "year": 2022,
-                    "month": 10,
-                    "day": 20
-                    # "hour": 9
                 }
             }
         ],
