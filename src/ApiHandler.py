@@ -1,4 +1,5 @@
 import requests
+from dateutil import parser
 
 API = "https://partners.api.skyscanner.net/apiservices/v3/"
 KEY_HEADER = {"x-api-key": "prtl6749387986743898559646983194"}
@@ -25,7 +26,9 @@ def fetchAirports():
                 airport[value.get("iata")] = value
         return airport
 
-def fetchFlights(originIATA, destinationIATA, currency, seats_num):
+def fetchFlights(originIATA, destinationIATA, currency, adults, children, from_date, return_date, cabin_class):
+    from_date_parsed = parser.parse(from_date)
+
     response = requests.post(API + "flights/live/search/create", headers=KEY_HEADER, json={
         "query": {
         "market": "CH",
@@ -34,24 +37,24 @@ def fetchFlights(originIATA, destinationIATA, currency, seats_num):
         "queryLegs": [
             {
                 "date": {
-                            "day": 10,
-                            "month": 11,
-                            "year": 2022
+                    "day": from_date_parsed.day,
+                    "month": from_date_parsed.month,
+                    "year": from_date_parsed.year
                 },
                 "originPlaceId": {
-                    "iata": originIATA
+                    "iata": originIATA.upper()
                 },
                 "destinationPlaceId": {
-                    "iata": destinationIATA
+                    "iata": destinationIATA.upper()
                 }
             }
         ],
         "groupPricing": False, # show price per person
-        "adults": seats_num,
-        "children": 0, # 1-16 years
+        "adults": adults,
+        "children": children, # 1-16 years
         "infants": 0, # 0-12 months
         "childrenAges": [],
-        "cabinClass": "CABIN_CLASS_BUSINESS",
+        "cabinClass": cabin_class,
         "excludedAgentsIds": [],
         "excludedCarriersIds": [],
         "includedAgentsIds": [],
@@ -61,9 +64,9 @@ def fetchFlights(originIATA, destinationIATA, currency, seats_num):
     })
     content = response.json()
     if response.status_code != 200 or content.get("status") == "RESULT_STATUS_FAILED":
-        raise Exception("Could not load airports")
+        raise Exception("Could not load flights")
     else:
-        return content.get("content").get("results").get("itineraries")
+        return content.get("content").get("results").get("itineraries"), content.get("content").get("results").get("legs"), content.get("content").get("results").get("carriers"), content.get("content").get("sortingOptions"), content.get("content").get("results").get("agents")
 
 
 if __name__ == "__main__":
