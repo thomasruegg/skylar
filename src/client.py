@@ -32,37 +32,26 @@ if __name__ == "__main__":
         print("Skylar: " + response.query_result.fulfillment_text)
         context_name = response.query_result.intent.display_name
 
-        all_values = {}
-        for context in response.query_result.output_contexts:
-            # A context is a map containing the input values
-            if context.parameters:
-                for key in list(context.parameters.keys()):
-                    all_values[key] = context.parameters.get(key)
-
-        filtered_values = {}
-        for key in list(all_values.keys()):
-            value = all_values.get(key)
-            if isinstance(value, str):
-                #Ignore these two original responses to get the mapped dates correctly
-                if key != 'departure.original' and key != 'return.original' and key != 'currency.original':
-                    try: 
-                        if key.index('.original'):
-                            #Remove .original from key
-                            key = key[:-9]
-                    except ValueError:
-                        pass
-                    filtered_values[key] = value
-
-        sort_order_param = filtered_values.get('sort-order')
-        currency = filtered_values.get('currency')
-        adults = filtered_values.get('adult')
-        children = filtered_values.get('child')
-        from_date = filtered_values.get('departure')
-        return_date = filtered_values.get('return')
-        cabin_class = filtered_values.get('class')
-
         if context_name == 'flight.book - show-flight':
-            all_flights, legs, carriers, sortingOptions, agents = fetchFlights(filtered_values.get('from'), filtered_values.get('to'), currency=currency, adults=adults, children=children, from_date=from_date, return_date=return_date, cabin_class=cabin_class)
+            
+            all_values = {}
+            for context in response.query_result.output_contexts:
+                # A context is a map containing the input values
+                if context.parameters:
+                    for key in list(context.parameters.keys()):
+                        all_values[key] = context.parameters.get(key)
+
+            sort_order_param = all_values.get('sort-order')
+            currency = all_values.get('currency')
+            adults = all_values.get('adult')
+            children = all_values.get('child')
+            from_date = all_values.get('departure')
+            return_date = all_values.get('return')
+            cabin_class = all_values.get('class')
+            from_airport = all_values.get('from').get('IATA')
+            to_airport = all_values.get('to').get('IATA')
+
+            all_flights, legs, carriers, sortingOptions, agents = fetchFlights(from_airport, to_airport, currency=currency, adults=adults, children=children, from_date=from_date, return_date=return_date, cabin_class=cabin_class)
 
             flight_list = []
             for sort in sortingOptions.get(sort_order_param):
@@ -91,8 +80,10 @@ if __name__ == "__main__":
             table.add_column('Stop Count')
             table.add_column('Duration')
             table.add_column('Airline(s)')
+            table.add_column('From')
             table.add_column('Departure Date')
             table.add_column('Departure Time')
+            table.add_column('To')
             table.add_column('Arrival Date')
             table.add_column('Arrival Time')
             table.add_column('Link to finish the booking process')
@@ -111,6 +102,8 @@ if __name__ == "__main__":
                 operatingCarrierIds = ', '.join(row.get('operatingCarrierIds'))
                 arrivalDate = get_date(row.get('arrivalDateTime'))
                 arrivalTime = get_time(row.get('arrivalDateTime'))
+                from_airport_name = all_values.get('from').get('name')
+                to_airport_name = all_values.get('to').get('name')
                 stopCount = row.get('stopCount')
-                table.add_row(f'[red]{price}', f'[red]{stopCount}', f'[magenta]{duration_text}', f'[magenta]{operatingCarrierIds}', f'[yellow]{departureDate}', f'[yellow]{departureTime}', f'[blue]{arrivalDate}', f'[blue]{arrivalTime}', hyperLinks)
+                table.add_row(f'[red]{price}', f'[red]{stopCount}', f'[magenta]{duration_text}', f'[magenta]{operatingCarrierIds}', from_airport_name, f'[yellow]{departureDate}', f'[yellow]{departureTime}', to_airport_name, f'[blue]{arrivalDate}', f'[blue]{arrivalTime}', hyperLinks)
             console.print(table)
