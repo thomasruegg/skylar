@@ -68,7 +68,9 @@ if __name__ == "__main__":
             for sort in sortingOptions.get(sort_order_param):
                 used_legs = list(map(lambda it: legs.get(it), all_flights.get(sort.get('itineraryId')).get('legIds')))
 
-                pricing_options = list(map(lambda p: {'price': p.get('price'), 'agendIds': list(map(lambda aId: agents.get(aId).get('name'), p.get('agentIds')))}, all_flights.get(sort.get('itineraryId')).get('pricingOptions')))
+                pricing_options = list(map(lambda po: list(map(lambda p: {'price': p.get('price'), 'agent': agents.get(p.get('agentId')).get('name'), 'deepLink': p.get('deepLink')}, po.get('items'))), all_flights.get(sort.get('itineraryId')).get('pricingOptions')))
+                pricing_options = [item for sublist in pricing_options for item in sublist] # Flatten list
+
                 for leg in used_legs:
                     found_flight = {}
                     found_flight['departureDateTime'] = leg.get('departureDateTime')
@@ -93,6 +95,7 @@ if __name__ == "__main__":
             table.add_column('Departure Time')
             table.add_column('Arrival Date')
             table.add_column('Arrival Time')
+            table.add_column('Link to finish the booking process')
             
             get_date = lambda d: "{0:0>2}".format(d.get('day')) + '.' + "{0:0>2}".format(d.get('month')) + '.' + str(d.get('year'))
             get_time = lambda d: "{0:0>2}".format(d.get('hour')) + ':' + "{0:0>2}".format(d.get('minute'))
@@ -101,12 +104,13 @@ if __name__ == "__main__":
                 duration_hours = int(row.get('durationInMinutes') / 60)
                 duration_minutes = row.get('durationInMinutes') % 60
                 duration_text = str(duration_hours) + 'h' + str(duration_minutes) + 'min'
-                price = '\n or '.join(list(map(lambda po: str(int(po.get('price').get('amount') or 0) / 1000) + ' ' + currency + ' on ' + str(po.get('agendIds')), row.get('pricingOptions'))))
+                price = '\n or '.join(list(map(lambda po: str(int(po.get('price').get('amount') or 0) / 1000) + ' ' + currency + ' on ' + po.get('agent'), row.get('pricingOptions'))))
+                hyperLinks = '\n or '.join(list(map(lambda po: '[link="' + po.get('deepLink') + '"]' + po.get('agent') + '[/link]', row.get('pricingOptions'))))
                 departureDate = get_date(row.get('departureDateTime'))
                 departureTime = get_time(row.get('departureDateTime'))
-                operatingCarrierIds = row.get('operatingCarrierIds')
+                operatingCarrierIds = ', '.join(row.get('operatingCarrierIds'))
                 arrivalDate = get_date(row.get('arrivalDateTime'))
                 arrivalTime = get_time(row.get('arrivalDateTime'))
                 stopCount = row.get('stopCount')
-                table.add_row(f'[red]{price}', f'[red]{stopCount}', f'[magenta]{duration_text}', f'[magenta]{operatingCarrierIds}', f'[yellow]{departureDate}', f'[yellow]{departureTime}', f'[blue]{arrivalDate}', f'[blue]{arrivalTime}')
+                table.add_row(f'[red]{price}', f'[red]{stopCount}', f'[magenta]{duration_text}', f'[magenta]{operatingCarrierIds}', f'[yellow]{departureDate}', f'[yellow]{departureTime}', f'[blue]{arrivalDate}', f'[blue]{arrivalTime}', hyperLinks)
             console.print(table)
