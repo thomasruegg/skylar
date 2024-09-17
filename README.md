@@ -1,12 +1,12 @@
 # Skylar Documentation
 
+> Made with ♥ by Thomas Rüegg and Patrick Wissiak
+
 "Hi! I am an AI-powered chatbot using the Skyscanner API and natural language processing to assist in finding the right flight for you."
 
 This project was developed as part of the AI Foundations course, taught by Dr. Marco Lehmann, during the fall semester of 2022, at the University of Applied Sciences of Eastern Switzerland, department of computer science.
 
 The project duration lasted from Monday, October 3rd, 2022, to Sunday, November 6th, 2022.
-
-Skylar was created with ❤️ and passion by Patrick Wissiak and Thomas Rüegg.
 
 ## Table of Contents
 
